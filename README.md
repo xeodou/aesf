@@ -1,6 +1,8 @@
 AESf
 ==========
 
+[![Build Status](https://travis-ci.org/xeodou/aesf.svg?branch=master)](https://travis-ci.org/xeodou/aesf)
+
 AESf package combines AES encryption, sha1HMAC verification and RFC2898 key derivation, which provide a very security way to encryp/decrypt data in golang.
 
 **Key features**
