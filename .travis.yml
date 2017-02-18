@@ -1,0 +1,13 @@
+language: go
+
+go:
+  - 1.5
+  - 1.6
+  - 1.7.x
+  - master
+install:
+  - go get github.com/dchest/uniuri
+  - go get golang.org/x/crypto/pbkdf2
+  - go get golang.org/x/tools/cmd/cover
+script:
+  - go test ./...
