@@ -25,10 +25,13 @@ const (
 )
 
 var (
-	ErrBadPassword      = errors.New("asef: invalid password")
-	ErrAuthenticateFail = errors.New("asef: invalid authenticate key")
+	// Invalid decrypt key
+	ErrBadPassword = errors.New("asef: invalid password")
+	// Envalid data signature
+	ErrSignatureFail = errors.New("asef: invalid signature key")
 )
 
+// Encrypt key size should be between 8 bytes to 64 bytes.
 type PasswordSizeError int
 
 func (p PasswordSizeError) Error() string {
@@ -37,8 +40,6 @@ func (p PasswordSizeError) Error() string {
 
 func calSaltSize(pwdSize int) (int, error) {
 	switch {
-	case pwdSize >= 8 && pwdSize < 32:
-		return 8, nil
 	case pwdSize >= 8 && pwdSize < 32:
 		return 8, nil
 	case pwdSize >= 32 && pwdSize < 48:

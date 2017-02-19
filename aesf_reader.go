@@ -52,7 +52,7 @@ func (r *aesfReader) Read(dst []byte) (n int, err error) {
 
 func (r *aesfReader) Close() error {
 	if !bytes.Equal(r.hash.Sum(nil)[:SignatureKeySize], r.authenticate) {
-		return ErrAuthenticateFail
+		return ErrSignatureFail
 	}
 
 	if c, ok := r.r.(io.Closer); ok {
