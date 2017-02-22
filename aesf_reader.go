@@ -19,35 +19,36 @@ type aesfReader struct {
 	r            io.Reader
 	hash         hash.Hash
 	authenticate []byte
-	offsetStart  int
 }
 
-func (r *aesfReader) Read(dst []byte) (n int, err error) {
-	blockSize := len(dst)
-	if blockSize-r.offsetStart-SignatureKeySize <= 0 {
+func (r *aesfReader) Read(block []byte) (n int, err error) {
+	blockSize := len(block)
+	if blockSize-SignatureKeySize <= 0 {
 		return 0, io.EOF
 	}
-	n, err = r.r.Read(dst[r.offsetStart:])
-	if n == 0 && err == nil {
+	n, err = r.r.Read(block)
+	if n == 0 || err == io.EOF {
 		return n, io.EOF
 	}
 
 	if err != nil {
 		return 0, io.ErrUnexpectedEOF
 	}
+	p := n - SignatureKeySize + len(r.authenticate)
 
-	l := n - SignatureKeySize + r.offsetStart
-	r.s.XORKeyStream(dst[r.offsetStart:l], dst[r.offsetStart:l])
-	r.authenticate = dst[l : n+r.offsetStart]
+	cipher := make([]byte, 0)
+	cipher = append(cipher, r.authenticate...)
+	cipher = append(cipher, block...)
 
-	dst = dst[r.offsetStart:l]
-	r.hash.Write(dst)
-	if n+r.offsetStart < blockSize {
-		return len(dst) + r.offsetStart, io.EOF
+	r.s.XORKeyStream(block[:p], cipher[:p])
+	r.hash.Write(block[:p])
+	r.authenticate = cipher[p : p+SignatureKeySize]
+
+	if n < blockSize {
+		return p, io.EOF
 	}
-	r.offsetStart = 0
 
-	return
+	return p, nil
 }
 
 func (r *aesfReader) Close() error {

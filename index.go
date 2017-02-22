@@ -43,9 +43,9 @@ func calSaltSize(pwdSize int) (int, error) {
 	case pwdSize >= 8 && pwdSize < 32:
 		return 8, nil
 	case pwdSize >= 32 && pwdSize < 48:
-		return 16, nil
+		return 12, nil
 	case pwdSize >= 48 && pwdSize < 64:
-		return 32, nil
+		return 16, nil
 	}
 	return 0, PasswordSizeError(pwdSize)
 }
@@ -114,10 +114,9 @@ func (aesf *AESf) Decrypt(ciphertext io.Reader) (plaintext io.ReadCloser, err er
 	sha1Mac := hmac.New(sha1.New, dk[aesf.keySize:aesf.keySize*2])
 
 	plaintext = &aesfReader{
-		s:           stream,
-		r:           ciphertext,
-		hash:        sha1Mac,
-		offsetStart: len(header),
+		s:    stream,
+		r:    ciphertext,
+		hash: sha1Mac,
 	}
 
 	return
