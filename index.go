@@ -9,7 +9,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/hmac"
-	"crypto/sha1"
+	"crypto/sha256"
 
 	"github.com/dchest/uniuri"
 	"golang.org/x/crypto/pbkdf2"
@@ -70,7 +70,7 @@ func New(password string) (*AESf, error) {
 }
 
 func (aesf *AESf) pbkdf2Key(salt []byte) []byte {
-	return pbkdf2.Key([]byte(aesf.password), salt, aesf.iter, aesf.keySize*2+PwdVerifierSize, sha1.New)
+	return pbkdf2.Key([]byte(aesf.password), salt, aesf.iter, aesf.keySize*2+PwdVerifierSize, sha256.New)
 }
 
 func (aesf *AESf) Encrypt(ciphertext io.Writer) (plaintext io.WriteCloser, err error) {
@@ -83,7 +83,7 @@ func (aesf *AESf) Encrypt(ciphertext io.Writer) (plaintext io.WriteCloser, err e
 		return
 	}
 	stream := cipher.NewCTR(block, dk[aesf.keySize:aesf.keySize*2])
-	sha1Mac := hmac.New(sha1.New, dk[aesf.keySize:aesf.keySize*2])
+	sha1Mac := hmac.New(sha256.New, dk[aesf.keySize:aesf.keySize*2])
 
 	_, err = ciphertext.Write(append(salt, dk[aesf.keySize*2:]...))
 	if err != nil {
@@ -111,7 +111,7 @@ func (aesf *AESf) Decrypt(ciphertext io.Reader) (plaintext io.ReadCloser, err er
 		return
 	}
 	stream := cipher.NewCTR(block, dk[aesf.keySize:aesf.keySize*2])
-	sha1Mac := hmac.New(sha1.New, dk[aesf.keySize:aesf.keySize*2])
+	sha1Mac := hmac.New(sha256.New, dk[aesf.keySize:aesf.keySize*2])
 
 	plaintext = &aesfReader{
 		s:    stream,

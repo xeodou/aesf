@@ -34,7 +34,7 @@ func test(pwd string, text []byte, t *testing.T) {
 	}
 
 	if cipher.Len() != testFullSize {
-		t.Error("Unexpected encrypted data size %d, expect %d", cipher.Len(), testFullSize)
+		t.Errorf("Unexpected encrypted data size %d, expect %d", cipher.Len(), testFullSize)
 	}
 
 	var plain bytes.Buffer
